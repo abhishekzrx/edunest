@@ -1,0 +1,14 @@
+{
+  "chapterId": "chapter1",
+  "title": "Chemical Reactions and Equations",
+  "notes": {
+    "theory": "A chemical reaction is a process in which one or more substances, the reactants, are converted to one or more different substances, the products. Substances are either chemical elements or compounds.",
+    "key_points": [
+      "Chemical changes are generally irreversible.",
+      "A balanced chemical equation has an equal number of atoms of each element on both sides.",
+      "Types of reactions: Combination, Decomposition, Displacement, Double Displacement, Oxidation and Reduction."
+    ],
+    "formulas": "Reactants -> Products"
+  },
+  "mcqs": []
+}

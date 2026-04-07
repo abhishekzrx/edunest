@@ -1,0 +1,220 @@
+.login-split-page {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: calc(100vh - 72px);
+  background: var(--bg-color);
+}
+
+@media (min-width: 900px) {
+  .login-split-page {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.login-hero-pane {
+  display: none;
+  background: linear-gradient(135deg, #051c2c 0%, #0a3a2a 100%);
+  color: white;
+  padding: 60px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 899px) {
+  .login-hero-pane {
+    display: none;
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+}
+
+.hero-bg-shapes {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.shape {
+  position: absolute;
+  filter: blur(80px);
+  opacity: 0.5;
+  border-radius: 50%;
+}
+
+.circle-1 {
+  width: 400px; height: 400px;
+  background: #10b981;
+  top: -100px; left: -100px;
+  animation: float 20s infinite alternate;
+}
+
+.circle-2 {
+  width: 300px; height: 300px;
+  background: #3b82f6;
+  bottom: -50px; right: -50px;
+  animation: float 15s infinite alternate reverse;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+.login-form-pane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: var(--bg-color);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 40px;
+  background: var(--card-bg, #fff);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+}
+
+.auth-card h2 {
+  font-size: 2rem;
+  letter-spacing: -0.5px;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.auth-card p {
+  text-align: center;
+  color: #94a3b8;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.role-switcher {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px;
+  border-radius: 12px;
+}
+
+.role-switcher button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #94a3b8;
+  transition: all 0.3s;
+}
+
+.role-switcher button.active {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.floating-label-group {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.floating-label-group input {
+  width: 100%;
+  padding: 24px 16px 8px 44px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.floating-label-group input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.floating-label-group label {
+  position: absolute;
+  left: 44px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+  transition: 0.2s ease all;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.floating-label-group input:focus + label,
+.floating-label-group input:not(:placeholder-shown) + label {
+  top: 12px;
+  font-size: 0.75rem;
+  color: #10b981;
+}
+
+.floating-label-group .field-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  transition: color 0.2s ease;
+}
+
+.floating-label-group input:focus ~ .field-icon {
+  color: #10b981;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--primary-color, #10b981);
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.auth-btn.google-btn {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.auth-links {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin-top: 24px;
+}
+
+.auth-links a {
+  color: #10b981;
+  font-weight: 600;
+  margin-left: 8px;
+  transition: color 0.2s;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+  color: #059669;
+}
