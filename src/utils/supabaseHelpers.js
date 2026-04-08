@@ -263,6 +263,7 @@ export const addChapter = async (name, subject, className, chapterNo) => {
       { name, subject, class_name: className, chapter_no: chapterNo }
     ]).select();
     if (error) throw error;
+    clearSystemCache();
     return { success: true, data };
   } catch (err) {
     return { success: false, error: err.message };
@@ -273,6 +274,7 @@ export const deleteChapter = async (chapterId) => {
   try {
     const { error } = await supabase.from('chapters').delete().eq('id', chapterId);
     if (error) throw error;
+    clearSystemCache();
     return { success: true };
   } catch (err) {
     return { success: false, error: err.message };
@@ -295,6 +297,7 @@ export const saveDynamicMCQs = async (chapterId, parsedMCQs) => {
 
     const { data, error } = await supabase.from('mcqs').insert(formattedPayload);
     if (error) throw error;
+    clearSystemCache();
     return { success: true, data };
   } catch (err) {
     return { success: false, error: err.message };
@@ -327,6 +330,7 @@ export const purgeChapterAndMCQs = async (chapterId) => {
     const { error: chapterError } = await supabase.from('chapters').delete().eq('id', chapterId);
     if (chapterError) throw chapterError;
 
+    clearSystemCache();
     return { success: true };
   } catch (err) {
     return { success: false, error: err.message };

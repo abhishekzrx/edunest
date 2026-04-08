@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     const loadSession = async (session) => {
       try {
         // ✅ SESSION CHECK FOR MASTER ADMIN
-        const isMasterAdmin = localStorage.getItem("masterAdmin");
+        const isMasterAdmin = sessionStorage.getItem("masterAdmin");
         if (isMasterAdmin === "true") {
           setUser({ id: "master-admin", email: "admin@studynest.com" });
           setProfile({ role: "admin", name: "Master Admin", email: "admin@studynest.com", _isMaster: true });
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         }
 
         // ✅ SESSION CHECK FOR MOCK STUDENT
-        const mockStudentClass = localStorage.getItem("mockStudent");
+        const mockStudentClass = sessionStorage.getItem("mockStudent");
         if (mockStudentClass) {
           setUser({ id: `mock-${mockStudentClass}`, email: `${mockStudentClass}@studynest.com` });
           setProfile({ role: "student", class: mockStudentClass, name: `Demo ${mockStudentClass.toUpperCase()}`, email: `${mockStudentClass}@studynest.com`, _isMock: true });

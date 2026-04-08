@@ -39,7 +39,7 @@ export default function Login() {
     // 🔥 Master Admin Override
     if (identifier === MASTER_ADMIN.email && password === MASTER_ADMIN.password) {
       console.log('Using Temporary Master Admin Login');
-      localStorage.setItem("masterAdmin", "true");
+      sessionStorage.setItem("masterAdmin", "true");
       window.location.href = "/admin-dashboard"; // Force reload to init simulated session
       return;
     }
@@ -48,7 +48,7 @@ export default function Login() {
     const studentMatch = identifier.match(/^class(9|10|11|12)@studynest\.com$/i);
     if (studentMatch && password.toLowerCase() === identifier.split('@')[0].toLowerCase() + '@123') {
        const className = `class${studentMatch[1]}`;
-       localStorage.setItem("mockStudent", className);
+       sessionStorage.setItem("mockStudent", className);
        window.location.href = "/student-dashboard";
        return;
     }

@@ -87,8 +87,8 @@ export const authService = {
    * Logout
    */
   async logout() {
-    localStorage.removeItem("masterAdmin");
-    localStorage.removeItem("mockStudent");
+    sessionStorage.removeItem("masterAdmin");
+    sessionStorage.removeItem("mockStudent");
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   },

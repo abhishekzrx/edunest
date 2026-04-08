@@ -6,12 +6,13 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import StudentDashboard from './pages/StudentDashboard';
-import AdminDashboard from './pages/AdminDashboard';
+
 import SystemConfig from './pages/SystemConfig';
 import SubjectPage from './pages/SubjectPage';
 import UnifiedStudy from './pages/UnifiedStudy';
 import ClassesPage from './pages/ClassesPage';
 import ClientSection from './pages/ClientSection';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import MCQDashboard from './pages/MCQDashboard';
 import DailyPractice from './pages/DailyPractice';
 import DashboardLayout from './layouts/DashboardLayout';
@@ -88,7 +89,7 @@ function App() {
 
               <Route path="/admin-dashboard" element={
                 <ProtectedRoute allowedRoles={['admin']}>
-                  <AdminDashboard />
+                  <SuperAdminDashboard />
                 </ProtectedRoute>
               } />
 
@@ -97,6 +98,8 @@ function App() {
                   <SystemConfig />
                 </ProtectedRoute>
               } />
+
+
 
               <Route path="/classes" element={
                 <ProtectedRoute>

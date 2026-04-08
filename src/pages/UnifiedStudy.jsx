@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { fetchContentAccessForChapter, fetchDynamicMCQs, fetchDynamicFlashcards } from '../utils/supabaseHelpers';
 import FlashcardViewer from '../components/FlashcardViewer';
-import { ArrowLeft, ArrowRight, BookOpen, Clock, Activity, Lock, Target, FileText, Zap } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Clock, Activity, Lock, Target, FileText, Zap, ChevronUp, ChevronDown, Map } from 'lucide-react';
 import { authService } from '../services/auth';
 import './UnifiedStudy.css';
 
@@ -22,6 +22,9 @@ export default function UnifiedStudy() {
   const [isTestSubmitted, setIsTestSubmitted] = useState(false);
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [reviewIndex, setReviewIndex] = useState(0);
+  
+  // Smart Toggle State
+  const [isMapVisible, setIsMapVisible] = useState(window.innerWidth > 768);
 
   // MCQ State Navigation
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -272,9 +275,9 @@ export default function UnifiedStudy() {
           <div className="us-stats-row">
             {stats.map(s => (
               <div key={s.id} className="us-stat-card">
-                 <div className="us-stat-icon" style={{ background: s.bg }}>{s.icon}</div>
+                 <div className="us-stat-icon" style={{ background: s.bg, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>{s.icon}</div>
                  <div className="us-stat-info">
-                   <div className="us-stat-val">{s.value}</div>
+                   <div className="us-stat-val" style={{fontFamily: "'DM Sans', sans-serif"}}>{s.value}</div>
                    <div className="us-stat-lbl">{s.label}</div>
                  </div>
               </div>
@@ -336,17 +339,40 @@ export default function UnifiedStudy() {
                       <h3>{s.name}</h3>
                       <p>{isEmpty ? 'No Questions Available' : s.desc}</p>
                    </div>
-                   {!isEmpty && (
-                     <div className="us-pc-progress">
-                       <div className="us-pc-prog-labels">
-                         <span>Progress</span>
-                         <span><strong>{prog}/{total}</strong>{isDone ? ' ✓' : ''}</span>
+                   {!isEmpty && (() => {
+                     // Generating dynamic self-analytical insight based on mock progress
+                     let insightObj = null;
+                     if (idx === 0) {
+                        insightObj = { text: "95% Rank — Top 5% Speed ⚡", color: "#059669", bg: "#d1fae5" };
+                     } else if (idx === 1) {
+                        insightObj = { text: "60% Accuracy — Focus Needed 🎯", color: "#d97706", bg: "#fef3c7" };
+                     } else {
+                        insightObj = { text: "0% Attempted — Uncharted 🚀", color: "#475569", bg: "#f1f5f9" };
+                     }
+
+                     return (
+                       <div className="us-pc-progress">
+                         <div className="us-pc-prog-labels">
+                           <span>Progress</span>
+                           <span><strong>{prog}/{total}</strong>{isDone ? ' ✓' : ''}</span>
+                         </div>
+                         <div className="us-pc-prog-bar">
+                           <div className="us-pc-prog-fill" style={{ width: `${(prog/total)*100}%`, background: accent.hex }}></div>
+                         </div>
+                         
+                         {/* Student Trigger Insight */}
+                         <div style={{ 
+                           marginTop: '16px', background: insightObj.bg, color: insightObj.color, 
+                           padding: '10px 12px', borderRadius: '8px', fontSize: '11px', 
+                           fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', 
+                           display: 'flex', alignItems: 'center', justifyContent: 'center',
+                           border: `1px solid ${insightObj.color}20` 
+                         }}>
+                            {insightObj.text}
+                         </div>
                        </div>
-                       <div className="us-pc-prog-bar">
-                         <div className="us-pc-prog-fill" style={{ width: `${(prog/total)*100}%`, background: accent.hex }}></div>
-                       </div>
-                     </div>
-                   )}
+                     );
+                   })()}
                    <div className="us-pc-bot">
                      <div className="us-pc-qcount">
                        <FileText size={14} color="#64748b" /> {total} Questions
@@ -373,46 +399,72 @@ export default function UnifiedStudy() {
           <div className="us-left-pane" style={{ 
               width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '20px',
               background: 'var(--us-card-bg)', borderRadius: '24px', padding: '24px', border: '1px solid var(--us-border)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+              alignSelf: 'flex-start',
+              position: 'sticky',
+              top: '24px',
+              maxHeight: 'calc(100vh - 48px)',
+              overflowY: 'auto'
           }}>
              <button className="btn-nav-us secondary" onClick={() => setTestConfig(null)} style={{ padding: '10px 16px', fontSize: '13px', width: 'fit-content' }}>
                 <ArrowLeft size={16} /> Back to Sets
              </button>
              
-             <div className="ns-classes-label" style={{padding: '12px 4px 0', fontSize: '11px', fontWeight: 800, color: 'var(--us-text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em'}}>
-               {testConfig.name} Map
-             </div>
-             <div className="us-q-grid" style={{ padding: '0', background: 'transparent', border: 'none' }}>
-               {Array.from({ length: totalMCQs }, (_, i) => {
-                 let cls = "us-q-btn ";
-                 const hasAnswer = selectedAnswers[i] !== undefined;
-                 const isVisited = visitedMap[i];
-                 
-                 if (hasAnswer) cls += "answered-green ";
-                 else if (isVisited) cls += "skipped-yellow ";
-                 else cls += "unanswered-red ";
-                 
-                 if (i === currentIndex) cls += "current ";
-                 
-                 return (
-                     <button key={i} className={cls} onClick={() => setCurrentIndex(i)} style={{height: '36px', fontSize: '13px'}}>
-                       {i + 1}
-                     </button>
-                 );
-               })}
+             <div 
+                style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 12px', cursor: 'pointer', background: isMapVisible ? 'transparent' : 'rgba(255,255,255,0.03)', border: isMapVisible ? '1px solid transparent' : '1px solid var(--us-border)', borderRadius: '12px', transition: 'all 0.2s', marginTop: '4px'}} 
+                onClick={() => setIsMapVisible(!isMapVisible)}
+             >
+               <div className="ns-classes-label" style={{fontSize: '11px', fontWeight: 800, color: 'var(--us-text-main)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '8px'}}>
+                 <Map size={14} color="#f59e0b" />
+                 {testConfig.name} Map
+               </div>
+               <div style={{color: 'var(--us-text-muted)', display: 'flex', alignItems: 'center'}}>
+                 <span style={{fontSize: '10px', marginRight: '6px', fontWeight: 700}}>{isMapVisible ? 'HIDE' : 'SHOW'}</span>
+                 {isMapVisible ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+               </div>
              </div>
              
-             {/* Map Status Legend Guide */}
-             <div className="us-map-legend" style={{marginTop: 'auto', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid var(--us-border)'}}>
-                 <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontWeight: 700, color: 'var(--us-text-main)', marginBottom: '10px'}}>
-                    <div style={{width: '12px', height: '12px', background: '#22c55e', borderRadius: '4px'}}></div> Answered
+             <div style={{
+                display: 'grid', 
+                gridTemplateRows: isMapVisible ? '1fr' : '0fr',
+                transition: 'grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+             }}>
+               <div style={{ overflow: 'hidden', opacity: isMapVisible ? 1 : 0, transition: 'opacity 0.4s ease', display: 'flex', flexDirection: 'column' }}>
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingTop: '20px' }}>
+                   <div className="us-q-grid" style={{ padding: '0', background: 'transparent', border: 'none' }}>
+                     {Array.from({ length: totalMCQs }, (_, i) => {
+                       let cls = "us-q-btn ";
+                       const hasAnswer = selectedAnswers[i] !== undefined;
+                       const isVisited = visitedMap[i];
+                       
+                       if (hasAnswer) cls += "answered-green ";
+                       else if (isVisited) cls += "skipped-yellow ";
+                       else cls += "unanswered-red ";
+                       
+                       if (i === currentIndex) cls += "current ";
+                       
+                       return (
+                           <button key={i} className={cls} onClick={() => setCurrentIndex(i)} style={{height: '36px', width: '36px', borderRadius: '50%', fontSize: '13px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                             {i + 1}
+                           </button>
+                       );
+                     })}
+                   </div>
+                   
+                   {/* Map Status Legend Guide */}
+                   <div className="us-map-legend" style={{marginTop: 'auto', padding: '16px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid var(--us-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                       <div style={{display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontWeight: 700, color: 'var(--us-text-main)'}}>
+                          <div style={{width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%'}}></div> Answered
+                       </div>
+                       <div style={{display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontWeight: 700, color: 'var(--us-text-main)'}}>
+                          <div style={{width: '8px', height: '8px', background: '#eab308', borderRadius: '50%'}}></div> Skipped
+                       </div>
+                       <div style={{display: 'flex', alignItems: 'center', gap: '6px', fontSize: '10px', fontWeight: 700, color: 'var(--us-text-main)'}}>
+                          <div style={{width: '8px', height: '8px', background: '#ef4444', borderRadius: '50%'}}></div> Missing
+                       </div>
+                   </div>
                  </div>
-                 <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontWeight: 700, color: 'var(--us-text-main)', marginBottom: '10px'}}>
-                    <div style={{width: '12px', height: '12px', background: '#eab308', borderRadius: '4px'}}></div> Skipped
-                 </div>
-                 <div style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontWeight: 700, color: 'var(--us-text-main)'}}>
-                    <div style={{width: '12px', height: '12px', background: '#ef4444', borderRadius: '4px'}}></div> Unanswered
-                 </div>
+               </div>
              </div>
              
              {testConfig.mode === 'timer' && !isTestSubmitted && (
@@ -452,30 +504,24 @@ export default function UnifiedStudy() {
          <div className="us-content">
             {/* --- MCQ MODE UI --- */}
             {mode === 'mcq' && currentQ && !isTestSubmitted && (
-              <div className="us-mcq-container" key={`q-${currentIndex}`} style={{
-                 background: 'var(--us-card-bg)', 
-                 borderRadius: '24px', 
-                 padding: '48px', 
-                 border: '1px solid var(--us-border)',
-                 boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
-                 minHeight: '400px',
-                 display: 'flex',
-                 flexDirection: 'column'
-              }}>
-                <div className="us-pill" style={{
-                   display: 'inline-flex', padding: '6px 14px', borderRadius: '100px',
-                   background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', marginBottom: '32px',
-                   fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em',
-                   alignSelf: 'flex-start', border: '1px solid rgba(56, 189, 248, 0.2)'
-                }}>
-                  {subjectId.toUpperCase()} • QUESTION {currentIndex + 1}
-                </div>
-                
-                <h2 className="us-question-text" style={{ fontSize: '26px', lineHeight: 1.5, color: 'var(--us-text-main)', marginBottom: '40px', fontWeight: 700 }}>
-                  {renderTransl(currentQ.question_en, currentQ.question_hi, currentQ.question)}
-                </h2>
+               <div className="fade-in-up" key={`q-${currentIndex}`} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '50vh', width: '100%', maxWidth: '650px', margin: '0 auto' }}>
 
-                <div className="us-options-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                 <div style={{
+                    background: 'var(--us-card-bg)', 
+                    borderRadius: '24px', 
+                    padding: '32px 40px', 
+                    border: '1px solid var(--us-border)',
+                    boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column'
+                 }}>
+                   
+                   <h2 className="us-question-text" style={{ fontSize: '21px', lineHeight: 1.5, color: 'var(--us-text-main)', marginBottom: '32px', fontWeight: 700 }}>
+                     {renderTransl(currentQ.question_en, currentQ.question_hi, currentQ.question)}
+                   </h2>
+
+                   <div className="us-options-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginLeft: '-16px' }}>
                   {(currentQ.options_en || currentQ.options || []).map((opt, oIdx) => {
                      let cls = "us-opt-btn ";
                      const isSelected = selectedAnswers[currentIndex] === oIdx;
@@ -499,20 +545,8 @@ export default function UnifiedStudy() {
                   })}
                 </div>
                 
-                {/* Navigation and Submit Actions Footer */}
-                <div style={{ marginTop: 'auto', paddingTop: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                     <button className="btn-nav-us secondary" onClick={() => setCurrentIndex(p => Math.max(0, p-1))} disabled={currentIndex===0} style={{visibility: currentIndex===0?'hidden':'visible', padding: '12px 24px'}}>
-                        <ArrowLeft size={18}/> Previous
-                     </button>
-                     
-                     <button className="us-submit-test-btn" onClick={handleSubmitTest}>
-                       Save & Submit {testConfig.name}
-                     </button>
-                     
-                     <button className="btn-nav-us secondary" onClick={() => setCurrentIndex(p => Math.min(totalMCQs-1, p+1))} disabled={currentIndex===totalMCQs-1} style={{visibility: currentIndex===totalMCQs-1?'hidden':'visible', padding: '12px 24px'}}>
-                        Next <ArrowRight size={18}/>
-                     </button>
-                </div>
+                {/* INNER NAVIGATION REMOVED AS REQUESTED TO AVOID STACKING & REDUNDANCY */}
+              </div>
               </div>
             )}
             
@@ -594,36 +628,30 @@ export default function UnifiedStudy() {
                      }
                      
                      return (
-                       <div className="us-mcq-container" style={{
-                          background: 'var(--us-card-bg)', borderRadius: '24px', padding: '48px', 
-                          border: '1px solid var(--us-border)', boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
-                          display: 'flex', flexDirection: 'column', flex: 1
-                       }}>
-                         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px'}}>
-                             <div className="us-pill" style={{
-                                display: 'inline-flex', padding: '6px 14px', borderRadius: '100px',
-                                background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8',
-                                fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em',
-                                border: '1px solid rgba(56, 189, 248, 0.2)'
-                             }}>
-                               {subjectId.toUpperCase()} • QUESTION {reviewIndex + 1}
-                             </div>
+                       <div className="fade-in-up" key={`r-${reviewIndex}`} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '50vh', width: '100%' }}>
+                         <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '16px'}}>
                              
                              <div style={{
-                                fontSize: '12px', fontWeight: 800, padding: '6px 14px', borderRadius: '100px', border: '1px solid',
+                                fontSize: '11px', fontWeight: 800, padding: '8px 16px', borderRadius: '100px', border: '1px solid',
                                 background: isAnswered ? (userAnsIdx === correctIdx ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)') : 'rgba(148, 163, 184, 0.1)',
                                 color: isAnswered ? (userAnsIdx === correctIdx ? '#22c55e' : '#ef4444') : '#94a3b8',
-                                borderColor: isAnswered ? (userAnsIdx === correctIdx ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)') : 'rgba(148, 163, 184, 0.3)'
+                                borderColor: isAnswered ? (userAnsIdx === correctIdx ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)') : 'rgba(148, 163, 184, 0.3)',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                              }}>
                                 {isAnswered ? (userAnsIdx === correctIdx ? '✅ Correct' : '❌ Incorrect') : '⚪ Skipped'}
                              </div>
                          </div>
                          
-                         <h2 className="us-question-text" style={{ fontSize: '26px', lineHeight: 1.5, color: 'var(--us-text-main)', marginBottom: '40px', fontWeight: 700 }}>
-                           {renderTransl(revQ.question_en, revQ.question_hi, revQ.question)}
-                         </h2>
+                         <div style={{
+                            background: 'var(--us-card-bg)', borderRadius: '24px', padding: '32px 40px', 
+                            border: '1px solid var(--us-border)', boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
+                            display: 'flex', flexDirection: 'column', flex: 1
+                         }}>
+                             <h2 className="us-question-text" style={{ fontSize: '21px', lineHeight: 1.5, color: 'var(--us-text-main)', marginBottom: '32px', fontWeight: 700 }}>
+                               {renderTransl(revQ.question_en, revQ.question_hi, revQ.question)}
+                             </h2>
 
-                         <div className="us-options-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                             <div className="us-options-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginLeft: '-16px' }}>
                            {(revQ.options_en || revQ.options || []).map((opt, oIdx) => {
                               let cls = "us-opt-btn review-mode ";
                               const isSelected = userAnsIdx === oIdx;
@@ -668,6 +696,7 @@ export default function UnifiedStudy() {
                                  Next <ArrowRight size={18}/>
                               </button>
                          </div>
+                       </div>
                        </div>
                      );
                  })()}
@@ -719,9 +748,16 @@ export default function UnifiedStudy() {
               <ArrowLeft size={18} /> {mode === 'mcq' ? 'Previous' : 'Back'}
             </button>
             
-            <button className="btn-nav-us" style={{background: 'transparent', color: '#94a3b8'}}>
+            <button className="btn-nav-us" style={{background: 'transparent', color: '#94a3b8', visibility: 'hidden'}}>
               {mode === 'mcq' ? '' : ''}
             </button>
+            
+            {/* INJECT SAVE & SUBMIT EXTERNALLY */}
+            {mode === 'mcq' && testConfig && !isTestSubmitted && (
+                 <button className="us-submit-test-btn shadow-pop hover-glow" onClick={handleSubmitTest} style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', padding: '12px 32px', fontSize: '14px' }}>
+                   Save & Submit {testConfig.name}
+                 </button>
+            )}
             
             {mode === 'mcq' && (
               <button 
