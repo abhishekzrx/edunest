@@ -506,7 +506,7 @@ export default function UnifiedStudy() {
             {mode === 'mcq' && currentQ && !isTestSubmitted && (
                <div className="fade-in-up" key={`q-${currentIndex}`} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '50vh', width: '100%', maxWidth: '650px', margin: '0 auto' }}>
 
-                 <div style={{
+                 <div className="us-mcq-container" style={{
                     background: 'var(--us-card-bg)', 
                     borderRadius: '24px', 
                     padding: '32px 40px', 
@@ -521,7 +521,7 @@ export default function UnifiedStudy() {
                      {renderTransl(currentQ.question_en, currentQ.question_hi, currentQ.question)}
                    </h2>
 
-                   <div className="us-options-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginLeft: '-16px' }}>
+                   <div className="us-options-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                   {(currentQ.options_en || currentQ.options || []).map((opt, oIdx) => {
                      let cls = "us-opt-btn ";
                      const isSelected = selectedAnswers[currentIndex] === oIdx;
@@ -642,7 +642,7 @@ export default function UnifiedStudy() {
                              </div>
                          </div>
                          
-                         <div style={{
+                         <div className="us-mcq-container" style={{
                             background: 'var(--us-card-bg)', borderRadius: '24px', padding: '32px 40px', 
                             border: '1px solid var(--us-border)', boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
                             display: 'flex', flexDirection: 'column', flex: 1
@@ -651,7 +651,7 @@ export default function UnifiedStudy() {
                                {renderTransl(revQ.question_en, revQ.question_hi, revQ.question)}
                              </h2>
 
-                             <div className="us-options-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginLeft: '-16px' }}>
+                             <div className="us-options-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                            {(revQ.options_en || revQ.options || []).map((opt, oIdx) => {
                               let cls = "us-opt-btn review-mode ";
                               const isSelected = userAnsIdx === oIdx;

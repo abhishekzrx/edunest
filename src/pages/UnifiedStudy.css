@@ -234,6 +234,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+  margin-left: -16px;
 }
 @media (max-width: 1000px) {
   .us-options-grid {
@@ -689,6 +690,14 @@
   .us-main {
     flex-direction: column !important;
     padding: 16px !important;
+  }
+  
+  .us-content {
+    padding: 16px 16px 120px 16px !important;
+  }
+  
+  .us-options-grid {
+    margin-left: 0 !important;
   }
   
   .us-left-pane, .us-rv-sidebar {
